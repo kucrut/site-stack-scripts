@@ -21,13 +21,6 @@ class Env extends \kucrut\env\Creator {
 				'default'   => 'development',
 			),
 		),
-		'WP_LOCAL_DEV' => array(
-			'type'     => 'askConfirmation',
-			'args'     => array(
-				'question'  => '* Is this a local environment?',
-				'default'   => false,
-			),
-		),
 		'DOMAIN_CURRENT_SITE' => array(
 			'type'       => 'askAndValidate',
 			'args'       => array(
@@ -83,7 +76,7 @@ class Env extends \kucrut\env\Creator {
 				'default'   => 'wp',
 			),
 		),
-		'DB_PASSSWORD' => array(
+		'DB_PASSWORD' => array(
 			'type'          => 'ask',
 			'args'          => array(
 				'question'  => '* Database Password',
@@ -97,6 +90,16 @@ class Env extends \kucrut\env\Creator {
 				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => 'wp_',
+			),
+		),
+		'DISABLED_PLUGINS' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* Disabled plugins
+    You can list plugins you want to disable for this environment here.
+    For example: w3-total-cache/w3-total-cache.php
+    Separate plugins with commas.
+  ',
 			),
 		),
 	);
