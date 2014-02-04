@@ -1,0 +1,397 @@
+<?php
+
+/**
+ * .env file creator for {@link https://github.com/gothfox/Tiny-Tiny-RSS/ TT-RSS}
+ *
+ * @author Dzikri Aziz <kvcrvt@gmail.com>
+ * @license http://www.gnu.org/licenses/gpl-2.0.html GPLv2
+ */
+
+namespace ttrss;
+
+class Env extends \kucrut\env\Creator {
+
+	public static $env_vars = array(
+		'SELF_URL_PATH' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* URL',
+				'validator' => array(__CLASS__, 'validate_url'),
+				'attempts'  => false,
+				'default'   => null,
+			),
+			'default_cb'    => array(__CLASS__, '_getUrlPath'),
+		),
+		'DB_TYPE' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Database Type',
+				'validator' => array(__CLASS__, 'validate_db_type'),
+				'attempts'  => false,
+				'default'   => 'mysql',
+			),
+		),
+		'DB_HOST' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* Database Host',
+				'default'   => 'localhost',
+			),
+		),
+		'DB_PORT' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* Database Port',
+				'default'   => 3306,
+			),
+		),
+		'DB_NAME' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Database Name',
+				'validator' => array('kucrut\env\Creator', 'stripNonAlphaNumerics'),
+				'attempts'  => false,
+				'default'   => 'ttrss',
+			),
+			'error_message' => 'Database name can only contain alphanumerics and underscores.',
+		),
+		'DB_USER' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* Database User',
+				'default'   => 'root',
+			),
+		),
+		'DB_PASS' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* Database Password',
+				'default'   => 'root',
+			),
+		),
+		'SINGLE_USER_MODE' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Use single user mode?',
+				'default'   => false,
+			),
+		),
+		'SIMPLE_UPDATE_MODE' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Use simple update mode?',
+				'default'   => false,
+			),
+		),
+        'DETECT_ARTICLE_LANGUAGE' => array(
+            'type'          => 'askConfirmation',
+            'args'          => array(
+                'question'  => '* Detect article language?
+    Detect article language when updating feeds, presently this is only
+    used for hyphenation. This may increase amount of CPU time used by
+    update processes, disable if necessary (i.e. you are being billed
+    for CPU time).
+ ',
+                'default'   => true,
+            ),
+        ),
+		'SESSION_CHECK_ADDRESS' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Session checker
+    Check client IP address when validating session:
+    0 - disable checking
+    1 - check first 3 octets of an address (recommended)
+    2 - check first 2 octets of an address
+    3 - check entire address
+  ',
+				'validator' => array(__CLASS__, 'validate_session_check_address'),
+				'attempts'  => false,
+				'default'   => 1,
+			),
+		),
+		'FORCE_ARTICLE_PURGE' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Force article purge (days)
+    When this option is not 0, users ability to control feed purging
+    intervals is disabled and all articles (which are not starred)
+    older than this amount of days are purged.
+  ',
+				'validator' => array(__CLASS__, 'validate_int'),
+				'attempts'  => false,
+				'default'   => 0,
+			),
+		),
+		'ENABLE_REGISTRATION' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Enable registration?',
+				'default'   => false,
+			),
+		),
+		'REG_MAX_USERS' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Maximum number of users allowed (0 = unlimited)',
+				'validator' => array(__CLASS__, 'validate_int'),
+				'attempts'  => false,
+				'default'   => 0,
+			),
+			'requires' => array(
+				'key' => 'ENABLE_REGISTRATION',
+				'value' => true,
+			),
+		),
+		'REG_NOTIFY_ADDRESS' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Send registration notifications to',
+				'validator' => array(__CLASS__, 'validate_email'),
+				'attempts'  => false,
+				'default'   => 'user@your.domain.tld',
+			),
+			'requires' => array(
+				'key' => 'ENABLE_REGISTRATION',
+				'value' => true,
+			),
+		),
+		'_SECTION_SMTP' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Configure SMTP Settings?',
+				'default'   => false,
+			),
+			'section_mark'  => true,
+		),
+		'SMTP_FROM_NAME' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Email Name field',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => 'Tiny Tiny RSS',
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SMTP_FROM_ADDRESS' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Email Address field',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => 'noreply@your.domain.tld',
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'DIGEST_SUBJECT' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Subject field',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => '[tt-rss] New headlines for last 24 hours',
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SMTP_SERVER' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* SMTP Server (hostname:port)',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => null,
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SMTP_LOGIN' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* SMTP Login',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => null,
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SMTP_PASSWORD' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* SMTP Password',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => null,
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SMTP_SECURE' => array(
+			'type'          => 'ask',
+			'args'          => array(
+				'question'  => '* SMTP Security (ssl, tls or empty)',
+				'default'   => null,
+			),
+			'requires' => array(
+				'key' => '_SECTION_SMTP',
+				'value' => true,
+			),
+		),
+		'SPHINX_ENABLED' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Enable Sphinx?',
+				'default'   => false,
+			),
+		),
+		'SPHINX_SERVER' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Sphinx server address and port',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => 'localhost:9312',
+			),
+			'requires' => array(
+				'key' => 'SPHINX_ENABLED',
+				'value' => true,
+			),
+		),
+		'SPHINX_INDEX' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Sphinx index names (separate with commas)',
+				'validator' => array('kucrut\env\Creator', 'validate'),
+				'attempts'  => false,
+				'default'   => 'ttrss, delta',
+			),
+			'requires' => array(
+				'key' => 'SPHINX_ENABLED',
+				'value' => true,
+			),
+		),
+		'PUBSUBHUBBUB_ENABLED' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Enable client PubSubHubbub support?',
+				'default'   => false,
+			),
+		),
+		'PUBSUBHUBBUB_HUB' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* PubSubHubbub-compatible hub server URL',
+				'validator' => array(__CLASS__, 'validate_url'),
+				'attempts'  => false,
+				'default'   => '',
+			),
+			'requires' => array(
+				'key' => 'PUBSUBHUBBUB_ENABLED',
+				'value' => true,
+			),
+		),
+		'ENABLE_GZIP_OUTPUT' => array(
+			'type'          => 'askConfirmation',
+			'args'          => array(
+				'question'  => '* Enable gzip?',
+				'default'   => false,
+			),
+		),
+		'LOG_DESTINATION' => array(
+			'type'          => 'askAndValidate',
+			'args'          => array(
+				'question'  => '* Log Destination
+    sql:    Use internal logging you can read in Preferences -> System
+    syslog: Log to system log
+    php:    Use PHP logging (usually to http server error.log)
+ ',
+				'validator' => array(__CLASS__, 'validate_log_destination'),
+				'attempts'  => false,
+				'default'   => 'sql',
+			),
+		),
+	);
+
+
+	public static $salt_keys = array(
+		'FEED_CRYPT_KEY',
+	);
+
+	protected static $salt_length = 24;
+
+
+	public static function _getUrlPath() {
+		return 'http://' . static::_getDirName();
+	}
+
+	public static function validate_session_check_address($value) {
+		$value = (int)$value;
+		if ( $value < 0 || $value > 3 ) {
+			throw new \RunTimeException( 'Value must be between 0 & 3' );
+		}
+
+		return $value;
+	}
+
+	public static function validate_url($value) {
+		if (!filter_var($value, FILTER_VALIDATE_URL)) {
+			throw new \RunTimeException( 'Invalid URL' );
+		}
+
+		return $value;
+	}
+
+
+	public static function validate_db_type($value) {
+		if (!in_array($value, array('pgsql', 'mysql'))) {
+			throw new \RunTimeException( 'TT-RSS only supports pgsql and mysql.' );
+		}
+
+		return $value;
+	}
+
+	public static function validate_email($value) {
+		if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+			throw new \RunTimeException( 'Invalid email address.' );
+		}
+
+		return $value;
+	}
+
+	public static function validate_int($value) {
+		$value = (int)$value;
+		if ($value < 0) {
+			throw new \RunTimeException( 'Value must be greater than -1' );
+		}
+
+		return $value;
+	}
+
+	public static function validate_log_destination($value) {
+		if (!in_array($value, array('sql', 'syslog', 'php')) ) {
+			throw new \RunTimeException( 'Invalid choice' );
+		}
+
+		if ('php' === $value) {
+			$value = '';
+		}
+
+		return $value;
+	}
+}
