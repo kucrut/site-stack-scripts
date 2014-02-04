@@ -20,7 +20,7 @@ class Env extends \kucrut\env\Creator {
 				'attempts'  => false,
 				'default'   => null,
 			),
-			'default_cb'    => array(__CLASS__, '_getUrlPath'),
+			'default_cb'    => array(__CLASS__, '_get_url_path'),
 		),
 		'DB_TYPE' => array(
 			'type'          => 'askAndValidate',
@@ -49,7 +49,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Database Name',
-				'validator' => array('kucrut\env\Creator', 'stripNonAlphaNumerics'),
+				'validator' => array(__CLASS__, 'strip_non_alpha_numerics'),
 				'attempts'  => false,
 				'default'   => 'ttrss',
 			),
@@ -168,7 +168,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Email Name field',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => 'Tiny Tiny RSS',
 			),
@@ -181,7 +181,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Email Address field',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => 'noreply@your.domain.tld',
 			),
@@ -194,7 +194,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Subject field',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => '[tt-rss] New headlines for last 24 hours',
 			),
@@ -207,7 +207,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* SMTP Server (hostname:port)',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => null,
 			),
@@ -220,7 +220,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* SMTP Login',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => null,
 			),
@@ -233,7 +233,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* SMTP Password',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => null,
 			),
@@ -264,7 +264,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Sphinx server address and port',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => 'localhost:9312',
 			),
@@ -277,7 +277,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Sphinx index names (separate with commas)',
-				'validator' => array('kucrut\env\Creator', 'validate'),
+				'validator' => array(__CLASS__, 'validate'),
 				'attempts'  => false,
 				'default'   => 'ttrss, delta',
 			),
@@ -336,8 +336,8 @@ class Env extends \kucrut\env\Creator {
 	protected static $salt_length = 24;
 
 
-	public static function _getUrlPath() {
-		return 'http://' . static::_getDirName();
+	public static function _get_url_path() {
+		return 'http://' . static::get_dir_name();
 	}
 
 	public static function validate_session_check_address($value) {
