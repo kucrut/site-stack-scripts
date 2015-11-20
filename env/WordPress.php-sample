@@ -16,7 +16,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Environment',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 				'default'   => 'development',
 			),
@@ -25,10 +25,10 @@ class Env extends \kucrut\env\Creator {
 			'type'       => 'askAndValidate',
 			'args'       => array(
 				'question'  => '* Main site domain name',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 			),
-			'default_cb' => array(__CLASS__, 'get_dir_name'),
+			'default_cb' => array( __CLASS__, 'get_dir_name' ),
 		),
 		'_HTTPS' => array(
 			'type'     => 'askConfirmation',
@@ -36,16 +36,16 @@ class Env extends \kucrut\env\Creator {
 				'question'  => '* Use HTTPS?',
 				'default'   => false,
 			),
-			'after_cb' => array(__CLASS__, 'set_urls'),
+			'after_cb' => array( __CLASS__, 'set_urls' ),
 		),
 		'DOMAIN_NAMES' => array(
 			'type'            => 'askAndValidate',
 			'args'            => array(
 				'question'  => '* Additional domain names (for multisite, separate with spaces)',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 			),
-			'default_cb'      => array(__CLASS__, 'get_env_value'),
+			'default_cb'      => array( __CLASS__, 'get_env_value' ),
 			'default_cb_args' => 'DOMAIN_CURRENT_SITE',
 			'after_cb'        => array( __CLASS__, 'set_domain_names' ),
 		),
@@ -53,16 +53,16 @@ class Env extends \kucrut\env\Creator {
 			'type'            => 'askAndValidate',
 			'args'            => array(
 				'question'  => '* Database Name',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 			),
-			'default_cb'      => array(__CLASS__, 'get_default_db_name'),
+			'default_cb'      => array( __CLASS__, 'get_default_db_name' ),
 		),
 		'DB_HOST' => array(
 			'type'            => 'askAndValidate',
 			'args'            => array(
 				'question'  => '* Database Host',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 				'default'   => 'localhost',
 			),
@@ -71,7 +71,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Database User',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 				'default'   => 'wp',
 			),
@@ -87,7 +87,7 @@ class Env extends \kucrut\env\Creator {
 			'type'          => 'askAndValidate',
 			'args'          => array(
 				'question'  => '* Database Table Prefix',
-				'validator' => array(__CLASS__, 'validate'),
+				'validator' => array( __CLASS__, 'validate' ),
 				'attempts'  => false,
 				'default'   => 'wp_',
 			),
@@ -113,7 +113,7 @@ class Env extends \kucrut\env\Creator {
 		'AUTH_SALT',
 		'SECURE_AUTH_SALT',
 		'LOGGED_IN_SALT',
-		'NONCE_SALT'
+		'NONCE_SALT',
 	);
 
 	protected static $salt_length = 24;
@@ -134,15 +134,16 @@ class Env extends \kucrut\env\Creator {
 
 
 	public static function set_urls() {
-		$protocol = static::$env_vars['_HTTPS'] ? 'https://' : 'http://';
-		static::$env_vars['WP_HOME'] = $protocol . static::$env_vars['DOMAIN_CURRENT_SITE'];
+		$protocol                       = static::$env_vars['_HTTPS'] ? 'https://' : 'http://';
+		static::$env_vars['WP_HOME']    = $protocol . static::$env_vars['DOMAIN_CURRENT_SITE'];
 		static::$env_vars['WP_SITEURL'] = static::$env_vars['WP_HOME'] . '/wp';
-		unset(static::$env_vars['_HTTPS']);
+
+		unset( static::$env_vars['_HTTPS'] );
 	}
 
 
-	public static function validate_url($value) {
-		if (!filter_var($value, FILTER_VALIDATE_URL)) {
+	public static function validate_url( $value ) {
+		if ( ! filter_var( $value, FILTER_VALIDATE_URL ) ) {
 			throw new \RunTimeException( 'Invalid URL' );
 		}
 

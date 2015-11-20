@@ -94,8 +94,7 @@ abstract class Creator {
 			foreach ( static::$env_vars as $key => $props ) {
 				if ( empty( $props['section_mark'] ) ) {
 					static::$env_vars[ $key ] = self::get_default( $props, true );
-				}
-				else {
+				} else {
 					unset( static::$env_vars[ $key ] );
 				}
 
@@ -103,27 +102,25 @@ abstract class Creator {
 					call_user_func( $props['after_cb'] );
 				}
 			}
-		}
-		else {
+		} else {
 			if ( empty( $filename ) ) {
 				$filename = $io->askAndValidate(
 					sprintf( 'Filename to write environment variables to [<comment>%s</comment>]: ', $default_filename ),
-					function ( $string, $x = 0 ) {
+					function( $string, $x = 0 ) {
 						if ( ! preg_match( '#^[\w\._-]+$#i', $string ) ) {
 							throw new \RunTimeException( 'The filename can only contains alphanumerics, dots, and underscores' );
 						}
 
 						return $string;
 					},
-					false,
+					null,
 					$default_filename
 				);
 			}
 
 			if ( 0 === strpos( $filename, '/' ) ) {
 				$env_file = $filename;
-			}
-			else {
+			} else {
 				$env_file = sprintf( '%s/%s', self::$base_dir, $filename );
 			}
 
@@ -135,7 +132,7 @@ abstract class Creator {
 
 				if ( false === $replace_old ) {
 					self::create( $event );
-					exit(0);
+					exit( 0 );
 				}
 			}
 
@@ -157,9 +154,9 @@ abstract class Creator {
 				if ( ! isset( $value ) ) {
 					if ( 'askConfirmation' === $props['type'] ) {
 						$comment_default = true === $default ? 'Y,n' : 'y,N';
-					}
-					else {
+					} else {
 						$comment_default = $default;
+						$props['args']['attempts'] = 3;
 					}
 
 					$props['args']['question'] = sprintf(
@@ -199,7 +196,7 @@ abstract class Creator {
 		try {
 			file_put_contents( $env_file, $env_vars, LOCK_EX );
 			$io->write( sprintf( '<info><comment>%s</comment> successfully created.</info>', $filename ) );
-		} catch( \Exception $e ) {
+		} catch ( \Exception $e ) {
 			$io->write( '<error>An error occured while creating your .env file. Error message:</error>' );
 			$io->write( sprintf( '<error>%s</error>%s', $e->getMessage(), "\n" ) );
 			$io->write( '<info>Below is the environment variables generated:</info>' );
@@ -236,7 +233,7 @@ abstract class Creator {
 			}
 			$props['args']['default'] = call_user_func_array(
 				$props['default_cb'],
-				(array)$props['default_cb_args']
+				(array) $props['default_cb_args']
 			);
 		}
 
@@ -273,8 +270,7 @@ abstract class Creator {
 		if ( empty( $value ) ) {
 			if ( ! empty( self::$_current_props['error_message'] ) ) {
 				$message = self::$_current_props['error_message'];
-			}
-			else {
+			} else {
 				$message = 'Value can not be empty.';
 			}
 
